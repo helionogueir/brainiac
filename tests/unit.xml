@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Unit Testing:
+ - Unit testing application classes
+ 
+@author Helio Nogueira <helio.nogueir@gmail.com>
+@version v1.0.0
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/5.2/phpunit.xsd"
+    colors="always"
+    verbose="true"
+    bootstrap="../../../autoload.php">
+    <testsuites>
+        <testsuite name="Unit Testing">
+            <directory suffix="Test.class.php" phpVersion="5.6" phpVersionOperator=">=">./unit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -1,0 +1,21 @@
+{
+    "name": "helionogueir/brainiac",
+    "description": "Brainiac - Comparation and manipulation text tool",
+    "homepage": "http://www.qalt-ed.com.br/",
+    "license": "MIT",
+    "keywords": ["library", "tool", "php", "string", "text", "compare", "manipulate"],
+    "require": {
+        "php": ">=5.6",
+        "helionogueir/typeboxing": ">=1.0.0"
+    },
+    "autoload": {
+        "files": ["core/autoload/register.inc"]
+    },
+    "authors": [
+        {
+            "name": "Helio Nogueira",
+            "email": "helio.nogueir@gmail.com",
+            "role": "Arquitect, Tester, Analyst and Developer"
+        }
+    ]
+}
