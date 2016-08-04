@@ -29,7 +29,7 @@ class Pattern {
    * @return null
    */
   public function __construct(String $filename) {
-    if (is_file($filename) && is_readable($filename)) {
+    if (is_file($filename) && is_readable($filename) && preg_match('/^(.*)\/(.*)\.(json)$/', $filename)) {
       $decode = new Decode(file_get_contents($filename));
       $this->name = $decode->name;
       if (empty($this->name)) {
@@ -44,6 +44,14 @@ class Pattern {
       $this->rule = $decode->rule;
       if ($this->rule instanceof stdClass) {
         $this->rule->clear = (isset($this->rule->clear)) ? $decode->rule->clear : null;
+        $this->rule->case = (isset($this->rule->case)) ? $decode->rule->case : null;
+        $this->rule->trim = (isset($this->rule->trim)) ? $decode->rule->trim : false;
+        $this->rule->test = (isset($this->rule->test)) ? $decode->rule->test : null;
+        $this->rule->numeric = (isset($this->rule->numeric)) ? $decode->rule->numeric : false;
+        $this->rule->length = (isset($this->rule->length)) ? $decode->rule->length : null;
+        if (!isset($this->rule->lengthBetween, $this->rule->lengthBetween->min, $this->rule->lengthBetween->max)) {
+          $this->rule->lengthBetween = null;
+        }
       }
     } else {
       Lang::addRoot(new String(\helionogueir\brainiac\autoload\LanguagePack::PACKAGE), new String(\helionogueir\brainiac\autoload\LanguagePack::PATH));
@@ -62,20 +70,6 @@ class Pattern {
     return new String($this->rule->defaultValue);
   }
 
-  /**
-   * Clean value
-   * - Clean the value
-   * 
-   * @param helionogueir\typeBoxing\type\String $value Value to be will test
-   * @return helionogueir\typeBoxing\type\String Clean value
-   */
-  public function clearValue(String $value) {
-    if (!$value->isEmpty() && !empty($this->rule->clear)) {
-      $value = new String(@preg_replace($this->rule->clear, null, $value));
-    }
-    return $value;
-  }
-
   public function getName() {
     return $this->name;
   }
@@ -86,6 +80,137 @@ class Pattern {
 
   public function getRule() {
     return $this->rule;
+  }
+
+  /**
+   * Apply filter
+   * - Format value conform rules
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will test
+   * @return helionogueir\typeBoxing\type\String Clean value
+   */
+  public function applyFilter(String $value) {
+    if (!$value->isEmpty()) {
+      $this->ruleClear($value);
+      $this->ruleCase($value);
+      $this->ruleTrim($value);
+      $this->ruleTest($value);
+      $this->ruleNumeric($value);
+      $this->ruleLength($value);
+      $this->ruleLengthBetween($value);
+    }
+    return $value;
+  }
+
+  /**
+   * Rule clear
+   * - Clean the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleClear(String &$value) {
+    if (!empty($this->rule->clear)) {
+      $value = new String(@preg_replace($this->rule->clear, null, $value));
+    }
+    return null;
+  }
+
+  /**
+   * Rule case
+   * - Transform in upper case
+   * - Transform in lower case
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleCase(String &$value) {
+    switch (strtolower($this->rule->case)) {
+      case 'upper':
+        $value = new String(strtoupper($value));
+        break;
+      case 'lower':
+        $value = new String(strtolower($value));
+        break;
+    }
+    return null;
+  }
+
+  /**
+   * Rule trim
+   * - Trim the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleTrim(String &$value) {
+    if ((bool) $this->rule->trim) {
+      $value = new String(trim($value));
+    }
+    return null;
+  }
+
+  /**
+   * Rule test
+   * - Test the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleTest(String &$value) {
+    if (!empty($this->rule->test) && !@preg_match($this->rule->test, $value)) {
+      $value = new String('');
+    }
+    return null;
+  }
+
+  /**
+   * Rule numeric
+   * - Numeric the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleNumeric(String &$value) {
+    if ((bool) $this->rule->numeric && (strlen($value) >= $this->rule->numeric)) {
+      $pattern = "/(\d{1,})(\d{{$this->rule->numeric}})/";
+      $number = preg_replace($pattern, '$1.', $value);
+      $number .= preg_replace($pattern, '$2', $value);
+      $value = new String($number);
+    }
+    return null;
+  }
+
+  /**
+   * Rule length
+   * - Length the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleLength(String &$value) {
+    if (!is_null($this->rule->length) && (strlen($value) != $this->rule->length)) {
+      $value = new String('');
+    }
+    return null;
+  }
+
+  /**
+   * Rule between length
+   * - Between length the value
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleLengthBetween(String &$value) {
+    if (!empty($this->rule->lengthBetween)) {
+      $min = (strlen($value) >= $this->rule->lengthBetween->min);
+      $max = (strlen($value) <= $this->rule->lengthBetween->max);
+      if (!($min && $max)) {
+        $value = new String('');
+      }
+    }
+    return null;
   }
 
 }

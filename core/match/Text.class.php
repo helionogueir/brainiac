@@ -29,10 +29,8 @@ class Text {
       $this->findValueByPatten($input, $input->getPatternName());
     } else {
       foreach (new DirectoryIterator($input->getDirectory()) as $fileInfo) {
-        if (!$fileInfo->isDot()) {
-          if ($fileInfo->isFile()) {
-            $this->findValueByPatten($input, $data, new String($fileInfo->getPathname()));
-          }
+        if (!$fileInfo->isDot() && $fileInfo->isFile()) {
+          $this->findValueByPatten($input, $data, new String($fileInfo->getPathname()));
         }
       }
     }
@@ -50,7 +48,7 @@ class Text {
     $pattern = new Pattern($filename);
     foreach ($pattern->getPattern() as $regex) {
       if (preg_match($regex, $input->getText())) {
-        $data[$pattern->getName()] = $pattern->clearValue($input->getValue());
+        $data[$pattern->getName()] = $pattern->applyFilter($input->getValue());
         break;
       }
     }
