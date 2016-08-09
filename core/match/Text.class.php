@@ -2,6 +2,7 @@
 
 namespace helionogueir\brainiac\match;
 
+use stdClass;
 use DirectoryIterator;
 use helionogueir\brainiac\match\Input;
 use helionogueir\typeBoxing\type\String;
@@ -48,7 +49,13 @@ class Text {
     $pattern = new Pattern($filename);
     foreach ($pattern->getPattern() as $regex) {
       if (preg_match($regex, $input->getText())) {
-        $data[$pattern->getName()] = $pattern->applyFilter($input->getValue());
+        $object = new stdClass();
+        $object->name = "{$pattern->getName()}";
+        $object->value = "{$input->getValue()}";
+        $object->valueFilter = "{$pattern->applyFilter($input->getValue())}";
+        $object->text = "{$input->getText()}";
+        $object->pattern = "{$filename}";
+        $data[$pattern->getName()] = $object;
         break;
       }
     }
