@@ -23,15 +23,17 @@ class Text {
    * - Find value in pattern
    * 
    * @param helionogueir\brainiac\match\Input $input Input data
+   * @param Array $data Stora var response
+   * @param Array $behavior Add info in data response
    * @return null
    */
-  public function match(Input $input, Array &$data) {
+  public function match(Input $input, Array &$data, Array $behavior = null) {
     if (!$input->getPatternName()->isEmpty()) {
       $this->findValueByPatten($input, $input->getPatternName());
     } else {
       foreach (new DirectoryIterator($input->getDirectory()) as $fileInfo) {
         if (!$fileInfo->isDot() && $fileInfo->isFile()) {
-          $this->findValueByPatten($input, $data, new String($fileInfo->getPathname()));
+          $this->findValueByPatten($input, $data, new String($fileInfo->getPathname()), $behavior);
         }
       }
     }
@@ -43,9 +45,12 @@ class Text {
    * - Check text with pattern(s)
    * 
    * @param helionogueir\brainiac\match\Input $input Input data
+   * @param Array $data Stora var response
+   * @param helionogueir\typeBoxing\type\String $filename Pattern filename
+   * @param Array $behavior Add info in data response
    * @return null
    */
-  private function findValueByPatten(Input $input, Array &$data, String $filename) {
+  private function findValueByPatten(Input $input, Array &$data, String $filename, Array $behavior = null) {
     $pattern = new Pattern($filename);
     foreach ($pattern->getPattern() as $regex) {
       if (preg_match($regex, $input->getText())) {
@@ -54,7 +59,7 @@ class Text {
         $object->value = "{$input->getValue()}";
         $object->valueFilter = "{$pattern->applyFilter($input->getValue())}";
         $object->text = "{$input->getText()}";
-        $object->pattern = "{$filename}";
+        $object->behavior = $pattern->getBehavior($behavior);
         $data[$pattern->getName()] = $object;
         break;
       }

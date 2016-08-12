@@ -20,6 +20,7 @@ class Pattern {
   private $name = null;
   private $pattern = Array();
   private $rule = null;
+  private $behavior = null;
 
   /**
    * Contruct pattern:
@@ -53,6 +54,10 @@ class Pattern {
           $this->rule->lengthBetween = null;
         }
       }
+      $this->behavior = $decode->behavior;
+      if ($this->behavior instanceof stdClass) {
+        $this->behavior->class = (isset($this->behavior->class)) ? $decode->behavior->class : null;
+      }
     } else {
       Lang::addRoot(new String(\helionogueir\brainiac\autoload\LanguagePack::PACKAGE), new String(\helionogueir\brainiac\autoload\LanguagePack::PATH));
       throw new Exception(Lang::get(new String('brainiac:match:filename:invalid'), new String('helionogueir/brainiac')));
@@ -80,6 +85,14 @@ class Pattern {
 
   public function getRule() {
     return $this->rule;
+  }
+
+  public function getBehavior(Array $behavior = null) {
+    if (count($behavior)) {
+      return (object) array_merge((array) $this->behavior, $behavior);
+    } else {
+      return $this->behavior;
+    }
   }
 
   /**
