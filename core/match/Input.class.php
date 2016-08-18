@@ -37,10 +37,6 @@ class Input {
       throw new Exception(Lang::get(new String('brainiac:paramter:isnotnull'), new String('helionogueir/brainiac'), Array('value' => 'text')));
     }
     $this->value = $value;
-    if ($this->value->isEmpty()) {
-      Lang::addRoot(new String(\helionogueir\brainiac\autoload\LanguagePack::PACKAGE), new String(\helionogueir\brainiac\autoload\LanguagePack::PATH));
-      throw new Exception(Lang::get(new String('brainiac:paramter:isnotnull'), new String('helionogueir/brainiac'), Array('value' => 'value')));
-    }
     $this->directory = $directory;
     if ($this->directory->isEmpty() || !is_dir($this->directory) || !is_readable($this->directory) || (count(scandir($this->directory)) <= 2)) {
       Lang::addRoot(new String(\helionogueir\brainiac\autoload\LanguagePack::PACKAGE), new String(\helionogueir\brainiac\autoload\LanguagePack::PATH));

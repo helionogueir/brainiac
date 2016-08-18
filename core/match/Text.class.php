@@ -59,7 +59,7 @@ class Text {
         $object->value = "{$input->getValue()}";
         $object->valueFilter = "{$pattern->applyFilter($input->getValue())}";
         $object->text = "{$input->getText()}";
-        $object->behavior = $pattern->getBehavior($behavior);
+        $object->behavior = $pattern->mergeBehavior($behavior);
         $data[$pattern->getName()] = $object;
         break;
       }

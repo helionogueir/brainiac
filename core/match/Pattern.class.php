@@ -54,9 +54,8 @@ class Pattern {
           $this->rule->lengthBetween = null;
         }
       }
-      $this->behavior = $decode->behavior;
-      if ($this->behavior instanceof stdClass) {
-        $this->behavior->class = (isset($this->behavior->class)) ? $decode->behavior->class : null;
+      if ($decode->behavior instanceof stdClass) {
+        $this->behavior = $decode->behavior;
       }
     } else {
       Lang::addRoot(new String(\helionogueir\brainiac\autoload\LanguagePack::PACKAGE), new String(\helionogueir\brainiac\autoload\LanguagePack::PATH));
@@ -87,7 +86,7 @@ class Pattern {
     return $this->rule;
   }
 
-  public function getBehavior(Array $behavior = null) {
+  public function mergeBehavior(Array $behavior = null) {
     if (count($behavior)) {
       return (object) array_merge((array) $this->behavior, $behavior);
     } else {
@@ -185,11 +184,13 @@ class Pattern {
    * @return null
    */
   private function ruleNumeric(String &$value) {
-    if ((bool) $this->rule->numeric && (strlen($value) >= $this->rule->numeric)) {
-      $pattern = "/(\d{1,})(\d{{$this->rule->numeric}})/";
-      $number = preg_replace($pattern, '$1.', $value);
-      $number .= preg_replace($pattern, '$2', $value);
-      $value = new String($number);
+    if (isset($this->rule->numeric, $this->rule->numeric->decimal, $this->rule->numeric->separator)) {
+      if ((bool) $this->rule->numeric->decimal && (strlen($value) >= $this->rule->numeric->decimal)) {
+        $pattern = "/(\d{1,})(\d{{$this->rule->numeric->decimal}})/";
+        $number = preg_replace($pattern, "$1{$this->rule->numeric->separator}", $value);
+        $number .= preg_replace($pattern, '$2', $value);
+        $value = new String($number);
+      }
     }
     return null;
   }
