@@ -45,6 +45,7 @@ class Pattern {
       $this->rule = $decode->rule;
       if ($this->rule instanceof stdClass) {
         $this->rule->clear = (isset($this->rule->clear)) ? $decode->rule->clear : null;
+        $this->rule->space = (isset($this->rule->space)) ? $decode->rule->space : false;
         $this->rule->case = (isset($this->rule->case)) ? $decode->rule->case : null;
         $this->rule->trim = (isset($this->rule->trim)) ? $decode->rule->trim : false;
         $this->rule->test = (isset($this->rule->test)) ? $decode->rule->test : null;
@@ -104,6 +105,7 @@ class Pattern {
   public function applyFilter(String $value) {
     if (!$value->isEmpty()) {
       $this->ruleClear($value);
+      $this->ruleSpace($value);
       $this->ruleCase($value);
       $this->ruleTrim($value);
       $this->ruleTest($value);
@@ -124,6 +126,20 @@ class Pattern {
   private function ruleClear(String &$value) {
     if (!empty($this->rule->clear)) {
       $value = new String(@preg_replace($this->rule->clear, null, $value));
+    }
+    return null;
+  }
+
+  /**
+   * Rule space
+   * - Replace same spaces for one space
+   * 
+   * @param helionogueir\typeBoxing\type\String $value Value to be will transform
+   * @return null
+   */
+  private function ruleSpace(String &$value) {
+    if (!empty($this->rule->space)) {
+      $value = new String(@preg_replace('/( +)/s', ' ', $value));
     }
     return null;
   }
